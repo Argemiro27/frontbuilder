@@ -1,11 +1,11 @@
 // cores.js
 
 const colors = {
-    primary: '#3498db',
-    secondary: '#1edf6e',
-    textBtn: '#16994d',
-    bgcolor: '#2f2e3f',
-    navbg: '#373647',
+    primary: '#611f69',
+    secondary: '#00b2c7',
+    textBtn: '#a4e0bd',
+    bgcolor: '#d5d9da',
+    navbg: '#dde0e0',
 
   };
   

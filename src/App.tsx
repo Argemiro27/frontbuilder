@@ -1,112 +1,59 @@
-import * as React from 'react';
-import { styled, useTheme } from '@mui/material/styles';
-import Box from '@mui/material/Box';
-import Drawer from '@mui/material/Drawer';
-import CssBaseline from '@mui/material/CssBaseline';
-import Toolbar from '@mui/material/Toolbar';
-import List from '@mui/material/List';
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
-import MenuIcon from '@mui/icons-material/Menu';
-import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
-import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { AppBar, drawerWidth } from './components/AppBar';
-import { Main } from './components/Main';
-import colors from './theme/colors';
+import React, { lazy, Suspense } from 'react';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
+import Container from './components/Container';
+import Sidebar from './components/Sidebar';
 import Content from './components/Content';
-import axios from 'axios';
-import { ListItem, ListItemText } from '@mui/material';
+import { Button } from '@mui/material';
+import Login from './pages/Login';
+import Register from './pages/Register';
 
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Cadastros = lazy(() => import('./pages/Cadastros'));
+const Agendamentos = lazy(() => import('./pages/Agendamentos'));
 
+const App: React.FC = () => {
+  const isLoggedIn = false; // Defina isso com base na autenticação do usuário
 
-const DrawerHeader = styled('div')(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  padding: theme.spacing(0, 1),
-  ...theme.mixins.toolbar,
-  justifyContent: 'flex-end',
-}));
-
-export default function App() {
-  const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
-  const [tables, setTables] = React.useState([]);
-
-  const handleDrawerOpen = () => {
-    setOpen(true);
-  };
-
-  const handleDrawerClose = () => {
-    setOpen(false);
-  };
-
-  React.useEffect(() => {
-    axios.get('http://localhost:5001/tables')
-      .then(response => {
-        console.log(response.data.tables); // Verificar o que está sendo retornado
-        setTables(response.data.tables); // Utilizando a estrutura correta para definir as tabelas
-      })
-      .catch(error => {
-        // Tratar erros ou exibir uma mensagem de erro, caso necessário
-        console.error('Erro ao obter as tabelas:', error);
-      });
-  }, []);
-  
+  if (isLoggedIn) {
+    return (
+      <Router>
+        <Container>
+          
+          <Sidebar>
+            <Link to="/">
+              <Button>Dashboard</Button>
+            </Link>
+            <Link to="/cadastros">
+              <Button>Cadastros</Button>
+            </Link>
+            <Link to="/agendamentos">
+              <Button>Agendamentos</Button>
+            </Link>
+          </Sidebar>
+          <Content>
+            <Suspense fallback={<div>Loading...</div>}>
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/cadastros" element={<Cadastros />} />
+                <Route path="/agendamentos" element={<Agendamentos />} />
+              </Routes>
+            </Suspense>
+          </Content>
+        </Container>
+      </Router>
+    );
+  }
 
   return (
-    <Box sx={{ display: 'flex' }}>
-      <CssBaseline />
-      <AppBar position="fixed" open={open}>
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerOpen}
-            edge="start"
-            sx={{ mr: 2, color: colors.secondary, ...(open && { display: 'none' }) }}
-          >
-            <MenuIcon />
-          </IconButton>
-
-        </Toolbar>
-
-      </AppBar>
-      <Drawer
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          '& .MuiDrawer-paper': {
-            width: drawerWidth,
-            boxSizing: 'border-box',
-            backgroundColor: colors.navbg,
-          },
-        }}
-        variant="persistent"
-        anchor="left"
-        open={open}
-      >
-        <DrawerHeader>
-          BUILDER
-          <IconButton onClick={handleDrawerClose}>
-            {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
-          </IconButton>
-        </DrawerHeader>
-        <Divider />
-        <Divider />
-        <List>
-          {tables.map((tableName, index) => (
-            <ListItem button key={index}>
-              <ListItemText primary={tableName} />
-            </ListItem>
-          ))}
-        </List>
-      </Drawer>
-      <Main open={open}>
-        <DrawerHeader />
-        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-          <Content />
-        </Box>
-      </Main>
-    </Box>
+    <Router>
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        
+        <Route path="/cadastro" element={<Register />} />
+        <Route path="*" element={<Navigate to="/login" />} />
+      </Routes>
+    </Router>
   );
-}
+};
+
+export default App;
